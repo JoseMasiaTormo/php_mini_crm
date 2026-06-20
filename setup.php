@@ -18,7 +18,7 @@ $db->exec("
 
 // Usuario de prueba (la contraseña de hashea, nunca en texto plano)
 $hash = password_hash('1234', PASSWORD_DEFAULT);
-$db->exec("INSERT OR IGNORE INTO users (username, password) VALUES ('jose', '$hash')");
+$db->exec("INSERT OR IGNORE INTO users (username, password) VALUES ('user', '$hash')");
 
 echo "Base de datos creada correctamente";
 ?>
