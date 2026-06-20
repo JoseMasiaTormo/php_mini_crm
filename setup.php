@@ -8,7 +8,7 @@ $db->exec("
         password TEXT NOT NULL
     );
 
-    CRETAE TABLE IF NOT EXISTS tasks (
+    CREATE TABLE IF NOT EXISTS tasks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
         title TEXT NOT NULL,
@@ -18,7 +18,7 @@ $db->exec("
 
 // Usuario de prueba (la contraseña de hashea, nunca en texto plano)
 $hash = password_hash('1234', PASSWORD_DEFAULT);
-$db->exec("INSERT OR IGNORE INTO users (user, password) VALUES ('jose', '$hash')");
+$db->exec("INSERT OR IGNORE INTO users (username, password) VALUES ('jose', '$hash')");
 
 echo "Base de datos creada correctamente";
 ?>

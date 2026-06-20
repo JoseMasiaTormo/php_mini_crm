@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="POST" action="login.php">
-            <label>Usuario: <input type="text" name="usuario"></label><br>
+            <label>Usuario: <input type="text" name="username"></label><br>
             <label>Contraseña: <input type="password" name="password"></label><br>
             <button type="submit">Entrar</button>
         </form>
