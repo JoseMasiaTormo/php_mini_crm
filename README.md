@@ -1,4 +1,4 @@
-# PHP Mini CRM
+# PHP Mini CRM Task Manager
 
 Un mini CRM (Customer Relationship Manager) construido con PHP puro para aprender y profundizar en las bases del lenguaje sin frameworks ni librerías externas.
 
