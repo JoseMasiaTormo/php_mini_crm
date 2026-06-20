@@ -10,10 +10,13 @@ if (!isset($_SESSION['user_id'])) {
 require_once 'db.php';
 $db = getDB();
 
-// GET: recuperar tareas del usuario logeado
-$stmt = $db->prepare("SELECT * FROM tasks WHERE user_id = ? ORDER BY created_at DESC");
-$stmt->execute([$_SESSION['user_id']]);
-$tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmtPending = $db->prepare("SELECT * FROM tasks WHERE user_id = ? AND completed = 0 ORDER BY created_at DESC");
+$stmtPending->execute([$_SESSION['user_id']]);
+$pendingTasks = $stmtPending->fetchAll(PDO::FETCH_ASSOC);
+
+$stmtDone = $db->prepare("SELECT * FROM tasks WHERE user_id = ? AND completed = 1 ORDER BY created_at DESC");
+$stmtDone->execute([$_SESSION['user_id']]);
+$doneTasks = $stmtDone->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -203,11 +206,50 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .task-check {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             border: 2px solid #d1d5db;
             flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: border-color 0.15s, background 0.15s;
+        }
+
+        .task-check:hover {
+            border-color: #667eea;
+        }
+
+        .task-check.checked {
+            border-color: #667eea;
+            background: #667eea;
+        }
+
+        .task-check.checked svg {
+            width: 12px;
+            height: 12px;
+            fill: #fff;
+        }
+
+        .task-item.completed {
+            background: #f9fafb;
+            box-shadow: none;
+        }
+
+        .task-item.completed .task-title {
+            text-decoration: line-through;
+            color: #9ca3af;
+            font-weight: 400;
+        }
+
+        .task-item.completed .task-date {
+            color: #d1d5db;
+        }
+
+        .tasks-header.completed-header {
+            margin-top: 1.5rem;
         }
 
         .task-body {
@@ -303,10 +345,10 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         <div class="tasks-header">
             <h2>Mis tareas</h2>
-            <span class="badge"><?= count($tasks) ?></span>
+            <span class="badge"><?= count($pendingTasks) ?></span>
         </div>
 
-        <?php if (empty($tasks)): ?>
+        <?php if (empty($pendingTasks) && empty($doneTasks)): ?>
             <div class="empty-state">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H7v-2h5v2zm3-4H7v-2h8v2zm0-4H7V7h8v2z"/>
@@ -314,10 +356,11 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <p>No tienes tareas aún. ¡Añade una arriba!</p>
             </div>
         <?php else: ?>
+            <?php if (!empty($pendingTasks)): ?>
             <ul class="task-list">
-            <?php foreach ($tasks as $task): ?>
+            <?php foreach ($pendingTasks as $task): ?>
                 <li class="task-item">
-                    <div class="task-check"></div>
+                    <a href="toggle_task.php?id=<?= $task['id'] ?>" class="task-check" title="Marcar como completada"></a>
                     <div class="task-body">
                         <div class="task-title"><?= htmlspecialchars($task['title']) ?></div>
                         <div class="task-date"><?= htmlspecialchars($task['created_at']) ?></div>
@@ -330,6 +373,34 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </li>
             <?php endforeach; ?>
             </ul>
+            <?php endif; ?>
+
+            <?php if (!empty($doneTasks)): ?>
+            <div class="tasks-header completed-header">
+                <h2>Completadas</h2>
+                <span class="badge"><?= count($doneTasks) ?></span>
+            </div>
+            <ul class="task-list">
+            <?php foreach ($doneTasks as $task): ?>
+                <li class="task-item completed">
+                    <a href="toggle_task.php?id=<?= $task['id'] ?>" class="task-check checked" title="Marcar como pendiente">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                        </svg>
+                    </a>
+                    <div class="task-body">
+                        <div class="task-title"><?= htmlspecialchars($task['title']) ?></div>
+                        <div class="task-date"><?= htmlspecialchars($task['created_at']) ?></div>
+                    </div>
+                    <a href="remove_task.php?id=<?= $task['id'] ?>" class="btn-delete" title="Eliminar tarea">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                        </svg>
+                    </a>
+                </li>
+            <?php endforeach; ?>
+            </ul>
+            <?php endif; ?>
         <?php endif; ?>
     </div>
 </body>
