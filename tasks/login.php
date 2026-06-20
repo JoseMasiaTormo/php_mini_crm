@@ -11,7 +11,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    if ($username && $password) {
+    if (!$username || !$password) {
+        $error = 'Rellena todos los campos';
+    } else {
         $db = getDB();
 
         // Consulta preparada - NUNCA concatenes variables en SQL directamente
@@ -24,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
 
-            header('Location: index.php'); // Redirigir
+            header('Location: index.php');
             exit;
         } else {
             $error = 'Usuario o contraseña incorrectos';
@@ -159,6 +161,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .btn-primary:hover { opacity: 0.92; }
         .btn-primary:active { transform: scale(0.98); }
+
+        .card-footer {
+            text-align: center;
+            margin-top: 1.25rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .card-footer a {
+            color: #667eea;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .card-footer a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -191,7 +208,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <button type="submit" class="btn-primary">Entrar</button>
         </form>
-        <a href="register.php">¿No tienes cuenta? Regístrate</a>
+        <div class="card-footer">
+            <a href="register.php">¿No tienes cuenta? Regístrate</a>
+        </div>
     </div>
 </body>
 </html>
